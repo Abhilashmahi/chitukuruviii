@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Registration Form</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="form.js" defer></script>
+</head>
+<body>
+  <div class="container">
+    <div class="form-box">
+      <h2>🐥Chitu Kuruvi Nest Entry🐥Form </h2>
+      <form id="regForm" method="POST" action="submit.php" onsubmit="validateAndSubmit(event)">
+        <label>Name:</label>
+        <input type="text" name="name" required />
+
+        <label>Email ID:</label>
+        <input type="email" name="email" required />
+
+        <label>Mobile Number:</label>
+        <input type="tel" name="mobile" required pattern="[0-9]{10}" maxlength="10" />
+
+        <label>Do you have kids?</label>
+        <div class="option-box">
+          <label class="option">
+            <input type="radio" name="hasKids" value="yes" onclick="toggleKidSection()" required />
+            <span>Yes</span>
+          </label>
+          <label class="option">
+            <input type="radio" name="hasKids" value="no" onclick="toggleKidSection()" />
+            <span>No</span>
+          </label>
+        </div>
+
+        <div id="kidsContainer" class="hidden">
+          <div id="kidList"></div>
+          <button type="button" class="add-kid" onclick="addKid()">+ Add Another Kid</button>
+        </div>
+
+        <label>Address:</label>
+        <textarea name="address" rows="3" required></textarea>
+
+        <button type="submit">Submit</button>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

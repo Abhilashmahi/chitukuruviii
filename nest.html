@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Chitu Kuruvi Nest 🪺</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #fffaf5;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1000px;
+      margin: auto;
+      background: #ffffff;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+    }
+    h2, h3 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .hidden { display: none; }
+    input, button {
+      padding: 10px;
+      margin-top: 10px;
+      width: 100%;
+      border-radius: 8px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #388e3c;
+    }
+    .user-cards {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    .user-card {
+      background: #f1faff;
+      border: 2px solid #c8e6c9;
+      padding: 15px;
+      border-radius: 12px;
+      width: 220px;
+      text-align: center;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+    .user-card:hover {
+      transform: scale(1.03);
+      box-shadow: 0 0 10px rgba(0, 150, 136, 0.2);
+    }
+    .images {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    .images img {
+      width: 150px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+    .back-btn {
+      margin-top: 10px;
+      display: inline-block;
+      color: #0077cc;
+      cursor: pointer;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>🐥 Welcome to Your Nest 🪺</h2>
+
+    <!-- Login -->
+    <div id="loginBox">
+      <h3>🔐 Login to Upload</h3>
+      <input type="text" id="userId" placeholder="Enter User ID (e.g., CK1234)">
+      <input type="password" id="userPass" placeholder="Enter Password">
+      <button onclick="loginUser()">Login</button>
+      <p id="loginError" style="color:red;display:none;">Invalid credentials. Please try again.</p>
+    </div>
+
+    <!-- Upload -->
+    <div id="uploadBox" class="hidden">
+      <h3>📤 Upload Your Image</h3>
+      <form id="uploadForm" method="POST" enctype="multipart/form-data" action="upload.php">
+        <input type="hidden" name="userid" id="uploadUserId">
+        <input type="file" name="image" accept="image/*" required>
+        <button type="submit">Upload Image</button>
+      </form>
+    </div>
+
+    <!-- Public Gallery -->
+    <div id="galleryBox">
+      <h3>🌈 Public Gallery</h3>
+      <div class="user-cards" id="userCards"></div>
+    </div>
+
+    <!-- User Gallery View -->
+    <div id="userGalleryBox" class="hidden">
+      <h3 id="galleryTitle">User Gallery</h3>
+      <div class="images" id="userImages"></div>
+      <div class="back-btn" onclick="goBack()">← Back to All Users</div>
+    </div>
+  </div>
+
+  <script>
+    function loginUser() {
+      const userId = document.getElementById('userId').value;
+      const password = document.getElementById('userPass').value;
+
+      fetch('login.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `userid=${encodeURIComponent(userId)}&password=${encodeURIComponent(password)}`
+      })
+      .then(res => res.text())
+      .then(data => {
+        if (data.trim() === 'success') {
+          document.getElementById('loginBox').classList.add('hidden');
+          document.getElementById('uploadBox').classList.remove('hidden');
+          document.getElementById('uploadUserId').value = userId;
+        } else {
+          document.getElementById('loginError').style.display = 'block';
+        }
+      });
+    }
+
+    function loadPublicGallery() {
+      fetch('gallery.php')
+        .then(res => res.json())
+        .then(data => {
+          const userCards = document.getElementById('userCards');
+          userCards.innerHTML = '';
+          data.forEach(user => {
+            const div = document.createElement('div');
+            div.className = 'user-card';
+            div.innerHTML = `
+              <h4>${user.name} 🐤</h4>
+              <p>📍 ${user.address}</p>
+              <small style="color:#777">(${user.images.length} images)</small>
+            `;
+            div.onclick = () => showUserGallery(user);
+            userCards.appendChild(div);
+          });
+        });
+    }
+
+    function showUserGallery(user) {
+      document.getElementById('galleryBox').classList.add('hidden');
+      document.getElementById('userGalleryBox').classList.remove('hidden');
+      document.getElementById('galleryTitle').innerText = `📸 ${user.name}'s Nest`;
+      const gallery = document.getElementById('userImages');
+      gallery.innerHTML = '';
+
+      if (user.images.length === 0) {
+        gallery.innerHTML = "<p>No images uploaded yet.</p>";
+        return;
+      }
+
+      user.images.forEach(filename => {
+        const img = document.createElement('img');
+        img.src = 'uploads/' + filename;
+        gallery.appendChild(img);
+      });
+    }
+
+    function goBack() {
+      document.getElementById('userGalleryBox').classList.add('hidden');
+      document.getElementById('galleryBox').classList.remove('hidden');
+    }
+
+    loadPublicGallery();
+  </script>
+</body>
+</html>
